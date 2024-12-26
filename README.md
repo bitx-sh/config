@@ -1603,6 +1603,61 @@ interface GeneratedTypes {
     referencesCount: number
   }
 }
+
+```
+
+## 🔧 Implementation Requirements
+
+### Core Types
+All core types must be defined in `packages/core/src/types/index.ts`:
+```typescript
+export interface BitXCore {
+  schema: SchemaSystem;
+  config: ConfigSystem;
+  plugins: PluginSystem;
+  ui: UISystem;
+}
+
+export interface Schema {
+  type: string;
+  properties?: Record<string, SchemaProperty>;
+  required?: string[];
+  definitions?: Record<string, Schema>;
+}
+
+// ... [other type definitions]
+```
+
+### Plugin System Requirements
+Each plugin must:
+1. Extend BasePlugin
+2. Implement all required methods
+3. Include proper error handling
+4. Validate schema before use
+5. Include comprehensive tests
+
+### Testing Requirements
+Each package must include:
+1. Unit tests
+2. Integration tests
+3. Snapshot tests for schemas
+4. Mock utilities
+
+### File Structure Requirements
+```bash
+packages/core/
+├── src/
+│   ├── types/
+│   │   ├── index.ts       # Core type definitions
+│   │   ├── schema.ts      # Schema-related types
+│   │   └── plugin.ts      # Plugin-related types
+│   ├── utils/
+│   │   ├── validation.ts  # Validation utilities
+│   │   └── transform.ts   # Transform utilities
+│   └── tests/
+│       ├── __snapshots__/ # Test snapshots
+│       ├── utils/         # Test utilities
+│       └── __mocks__/     # Test mocks
 ```
 
 ---
