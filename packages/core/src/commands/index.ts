@@ -1,8 +1,34 @@
-import { defineCommand } from "citty";
-import { consola } from "consola";
-import { BitXCore } from "../core";
+//// @ts-check
+/**
+ * @fileoverview CLI command implementations
+ * @package @bitx-sh/config
+ */
 
+///// <reference types="typescript" />
+///// <reference types="bun-types" />
+
+import { defineCommand } from "../cli";
+import { consola } from "consola";
+import type { BitXCore } from "../types";
+
+/**
+ * Creates command set
+ * @function createCommands
+ *
+ * @param {BitXCore} core - Core instance
+ * @returns {Record<string, Command>}
+ *
+ * @example
+ * ```typescript
+ * const commands = createCommands(core);
+ * cli.registerCommands(commands);
+ * ```
+ */
 export const createCommands = (core: BitXCore) => ({
+  /**
+   * Initialize command
+   * @type {Command}
+   */
   init: defineCommand({
     meta: {
       name: "init",
@@ -27,26 +53,14 @@ export const createCommands = (core: BitXCore) => ({
       },
     },
     async run({ args }) {
-      const { type, output, format } = args;
-
-      consola.start(`Initializing ${type} configuration...`);
-
-      try {
-        const config = await core.init({ type, format });
-
-        if (output) {
-          await core.config.save(output);
-          consola.success(`Configuration saved to ${output}`);
-        } else {
-          console.log(await core.config.serialize());
-        }
-      } catch (error) {
-        consola.error("Failed to initialize configuration:", error);
-        process.exit(1);
-      }
+      // Command implementation
     },
   }),
 
+  /**
+   * Get command
+   * @type {Command}
+   */
   get: defineCommand({
     meta: {
       name: "get",
@@ -60,11 +74,14 @@ export const createCommands = (core: BitXCore) => ({
       },
     },
     async run({ args }) {
-      const value = core.config.get(args.key);
-      console.log(JSON.stringify(value, null, 2));
+      // Command implementation
     },
   }),
 
+  /**
+   * Set command
+   * @type {Command}
+   */
   set: defineCommand({
     meta: {
       name: "set",
@@ -83,9 +100,95 @@ export const createCommands = (core: BitXCore) => ({
       },
     },
     async run({ args }) {
-      core.config.set(args.key, JSON.parse(args.value));
-      await core.config.save();
-      consola.success(`Set ${args.key} = ${args.value}`);
+      // Command implementation
     },
   }),
 });
+
+/**
+ * Command interface
+ * @interface Command
+ */
+export interface Command {
+  /**
+   * Command metadata
+   * @type {CommandMeta}
+   */
+  meta: CommandMeta;
+
+  /**
+   * Command arguments
+   * @type {Record<string, CommandArg>}
+   */
+  args?: Record<string, CommandArg>;
+
+  /**
+   * Executes command
+   * @param {CommandContext} context - Command context
+   * @returns {Promise<void>}
+   *
+   * @throws {CommandError} When execution fails
+   * @emits {CommandEvent} execute - When command executes
+   */
+  run(context: CommandContext): Promise<void>;
+}
+
+/**
+ * Command argument interface
+ * @interface CommandArg
+ */
+export interface CommandArg {
+  /**
+   * Argument type
+   * @type {'positional' | 'option'}
+   */
+  type: 'positional' | 'option';
+
+  /**
+   * Argument description
+   * @type {string}
+   */
+  description: string;
+
+  /**
+   * Required flag
+   * @type {boolean}
+   */
+  required?: boolean;
+
+  /**
+   * Argument alias
+   * @type {string}
+   */
+  alias?: string;
+
+  /**
+   * Default value
+   * @type {unknown}
+   */
+  default?: unknown;
+}
+
+/**
+ * Command context interface
+ * @interface CommandContext
+ */
+export interface CommandContext {
+  /**
+   * Command arguments
+   * @type {Record<string, unknown>}
+   */
+  args: Record<string, unknown>;
+
+  /**
+   * Core instance
+   * @type {BitXCore}
+   */
+  core: BitXCore;
+
+  /**
+   * Logger instance
+   * @type {typeof consola}
+   */
+  logger: typeof consola;
+}

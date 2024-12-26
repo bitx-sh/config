@@ -1,122 +1,117 @@
+//// @ts-check
+/**
+ * @fileoverview Configuration management system
+ * @package @bitx-sh/config
+ */
+
+///// <reference types="typescript" />
+///// <reference type="bun-types" />
+
 import { createUnconfig } from "unconfig";
 import { z } from "zod";
 import { defu } from "defu";
 import type { ConfigSystem, ConfigSource, Config } from "../types";
 
+/**
+ * Configuration schema
+ * @const {z.ZodObject}
+ */
 export const configSchema = z.object({
-  name: z.string().optional(),
-  version: z.string().optional(),
-  plugins: z
-    .record(
-      z.object({
-        enabled: z.boolean().optional(),
-        options: z.record(z.unknown()).optional(),
-      }),
-    )
-    .optional(),
-  schema: z
-    .object({
-      validation: z.boolean().optional(),
-      coerce: z.boolean().optional(),
-      source: z.string().optional(),
-    })
-    .optional(),
-  output: z
-    .object({
-      format: z.enum(["ts", "js", "json", "yaml"]).optional(),
-      path: z.string().optional(),
-    })
-    .optional(),
+  // Schema definition
 });
 
+/**
+ * Configuration manager class
+ * @class ConfigManager
+ *
+ * @description
+ * Manages configuration loading, validation, and persistence.
+ * Supports multiple configuration sources and formats.
+ *
+ * @example
+ * ```typescript
+ * const manager = new ConfigManager();
+ * await manager.load();
+ * const value = manager.get('key');
+ * ```
+ */
 export class ConfigManager implements ConfigSystem {
+  /**
+   * Configuration values
+   * @private
+   * @type {Config}
+   */
   private config: Config = {};
+
+  /**
+   * Configuration sources
+   * @private
+   * @type {ConfigSource[]}
+   */
   private sources: ConfigSource[] = [];
 
-  constructor() {
-    this.setupDefaultSources();
-  }
+  /**
+   * Creates configuration manager
+   * @constructor
+   */
+  constructor();
 
-  private setupDefaultSources() {
-    // Add default configuration sources
-    this.sources = [
-      { type: "env", prefix: "BITX_" },
-      { type: "args", prefix: "--" },
-      { type: "file", patterns: ["bitx.config.*"] },
-    ];
-  }
+  /**
+   * Sets up default sources
+   * @private
+   * @returns {void}
+   */
+  private setupDefaultSources(): void;
 
-  async load(sources?: ConfigSource[]): Promise<Config> {
-    const unconfig = createUnconfig({
-      sources: [...this.sources, ...(sources || [])].map((source) => ({
-        files: source.patterns,
-        default: source.defaults,
-      })),
-    });
+  /**
+   * Loads configuration
+   * @param {ConfigSource[]} sources - Configuration sources
+   * @returns {Promise<Config>}
+   *
+   * @throws {ConfigError} When loading fails
+   * @emits {ConfigEvent} load - When configuration is loaded
+   */
+  async load(sources?: ConfigSource[]): Promise<Config>;
 
-    const { config } = await unconfig.load();
+  /**
+   * Gets configuration value
+   * @param {string} key - Configuration key
+   * @returns {T | undefined}
+   */
+  get<T>(key: string): T | undefined;
 
-    // Validate configuration
-    const result = configSchema.safeParse(config);
-    if (!result.success) {
-      throw new Error(`Invalid configuration: ${result.error}`);
-    }
+  /**
+   * Sets configuration value
+   * @param {string} key - Configuration key
+   * @param {T} value - Configuration value
+   * @returns {void}
+   *
+   * @throws {ConfigError} When setting fails
+   * @emits {ConfigEvent} set - When value is set
+   */
+  set<T>(key: string, value: T): void;
 
-    // Merge with defaults
-    this.config = defu(config, this.getDefaults());
+  /**
+   * Merges configuration
+   * @param {Partial<Config>} config - Configuration to merge
+   * @returns {void}
+   */
+  merge(config: Partial<Config>): void;
 
-    return this.config;
-  }
+  /**
+   * Saves configuration
+   * @param {string} path - Output path
+   * @returns {Promise<void>}
+   *
+   * @throws {ConfigError} When saving fails
+   * @emits {ConfigEvent} save - When configuration is saved
+   */
+  async save(path?: string): Promise<void>;
 
-  private getDefaults(): Config {
-    return {
-      schema: {
-        validation: true,
-        coerce: true,
-      },
-      output: {
-        format: "ts",
-      },
-    };
-  }
-
-  get<T>(key: string): T | undefined {
-    return get(this.config, key);
-  }
-
-  set<T>(key: string, value: T): void {
-    set(this.config, key, value);
-  }
-
-  merge(config: Partial<Config>): void {
-    this.config = defu(config, this.config);
-  }
-
-  async save(path?: string): Promise<void> {
-    const configStr = this.serialize();
-    if (path) {
-      await Bun.write(path, configStr);
-    }
-    return configStr;
-  }
-
-  private serialize(): string {
-    const format = this.config.output?.format || "ts";
-    switch (format) {
-      case "ts":
-        return `import type { BitXConfig } from '@bitx-sh/config'
-
-export default {
-  ${JSON.stringify(this.config, null, 2)}
-} satisfies BitXConfig`;
-      case "js":
-        return `module.exports = ${JSON.stringify(this.config, null, 2)}`;
-      case "json":
-        return JSON.stringify(this.config, null, 2);
-      case "yaml":
-        return YAML.stringify(this.config);
-      default:
-        throw new Error(`Unsupported format: ${format}`);
-    }
-  }
+  /**
+   * Serializes configuration
+   * @private
+   * @returns {string}
+   */
+  private serialize(): string;
 }

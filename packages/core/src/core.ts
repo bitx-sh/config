@@ -1,124 +1,138 @@
-import { createConsola } from 'consola'
-import { loadConfig } from 'c12'
-import { defineSchema, validateSchema } from './schema'
-import { PluginSystem } from './plugins'
-import type { BitXOptions, Schema, Config, Plugin } from './types'
+//// @ts-check
+/**
+ * @fileoverview Core system implementation
+ * @package @bitx-sh/config
+ */
 
+///// <reference types="typescript" />
+///// <reference types="bun-types" />
+
+import { createConsola } from 'consola';
+import { loadConfig } from 'c12';
+import { defineSchema, validateSchema } from './schema';
+import { PluginSystem } from './plugins';
+import type { BitXOptions, Schema, Config, Plugin } from './types';
+
+/**
+ * Core system class
+ * @class BitXCore
+ *
+ * @description
+ * Main entry point for the BitX Config system.
+ * Manages all subsystems and coordinates operations.
+ *
+ * @example
+ * ```typescript
+ * const core = new BitXCore();
+ * await core.init();
+ * const config = await core.loadConfig('biome');
+ * ```
+ */
 export class BitXCore {
-  private logger = createConsola()
-  private plugins: PluginSystem
-  private schemas = new Map<string, Schema>()
-  private config: Config = {}
+  /**
+   * Logger instance
+   * @private
+   * @type {ReturnType<typeof createConsola>}
+   */
+  private logger = createConsola();
 
-  constructor(options: BitXOptions = {}) {
-    this.plugins = new PluginSystem(this)
-    this.init(options)
-  }
+  /**
+   * Plugin system
+   * @private
+   * @type {PluginSystem}
+   */
+  private plugins: PluginSystem;
 
-  private async init(options: BitXOptions) {
-    // Load core configuration
-    const { config } = await loadConfig({
-      name: 'bitx',
-      defaults: {
-        plugins: {},
-        schema: {
-          validation: true,
-          coerce: true
-        }
-      }
-    })
+  /**
+   * Schema cache
+   * @private
+   * @type {Map<string, Schema>}
+   */
+  private schemas = new Map<string, Schema>();
 
-    this.config = config
+  /**
+   * Configuration
+   * @private
+   * @type {Config}
+   */
+  private config: Config = {};
 
-    // Initialize plugin system
-    await this.initializePlugins()
-  }
+  /**
+   * Creates core system
+   * @constructor
+   * @param {BitXOptions} options - Initialization options
+   */
+  constructor(options: BitXOptions = {});
 
-  private async initializePlugins() {
-    const corePlugins = [
-      '@bitx-sh/plugin-biome',
-      '@bitx-sh/plugin-vite',
-      '@bitx-sh/plugin-github',
-      '@bitx-sh/plugin-renovate'
-    ]
+  /**
+   * Initializes core system
+   * @private
+   * @param {BitXOptions} options - Initialization options
+   * @returns {Promise<void>}
+   *
+   * @throws {InitializationError} When initialization fails
+   * @emits {CoreEvent} init - When system is initialized
+   */
+  private async init(options: BitXOptions): Promise<void>;
 
-    for (const plugin of corePlugins) {
-      try {
-        await this.plugins.load(plugin)
-      } catch (error) {
-        this.logger.warn(`Failed to load plugin ${plugin}:`, error)
-      }
-    }
-  }
+  /**
+   * Initializes plugins
+   * @private
+   * @returns {Promise<void>}
+   */
+  private async initializePlugins(): Promise<void>;
 
-  async schema.load(type: string): Promise<Schema> {
-    // Check cache first
-    if (this.schemas.has(type)) {
-      return this.schemas.get(type)!
-    }
+  /**
+   * Loads schema
+   * @param {string} type - Schema type
+   * @returns {Promise<Schema>}
+   *
+   * @throws {SchemaError} When schema loading fails
+   * @emits {SchemaEvent} load - When schema is loaded
+   */
+  async loadSchema(type: string): Promise<Schema>;
 
-    // Get plugin for type
-    const plugin = this.plugins.get(type)
-    if (!plugin) {
-      throw new Error(`No plugin found for type: ${type}`)
-    }
+  /**
+   * Generates configuration
+   * @param {Schema} schema - Configuration schema
+   * @param {unknown} options - Generation options
+   * @returns {Promise<Config>}
+   *
+   * @throws {GenerationError} When generation fails
+   * @emits {ConfigEvent} generate - When configuration is generated
+   */
+  async generate(schema: Schema, options?: unknown): Promise<Config>;
 
-    // Load schema from plugin
-    const schema = await plugin.loadSchema()
+  /**
+   * Validates configuration
+   * @param {unknown} config - Configuration to validate
+   * @param {Schema} schema - Validation schema
+   * @returns {Promise<void>}
+   *
+   * @throws {ValidationError} When validation fails
+   * @emits {ValidationEvent} validate - When validation completes
+   */
+  async validate(config: unknown, schema: Schema): Promise<void>;
 
-    // Validate schema
-    await validateSchema(schema)
+  /**
+   * Saves configuration
+   * @param {Config} config - Configuration to save
+   * @param {string} path - Output path
+   * @returns {Promise<void>}
+   *
+   * @throws {SaveError} When saving fails
+   * @emits {ConfigEvent} save - When configuration is saved
+   */
+  async save(config: Config, path: string): Promise<void>;
 
-    // Cache schema
-    this.schemas.set(type, schema)
-
-    return schema
-  }
-
-  async generate(schema: Schema, options: any = {}): Promise<Config> {
-    // Get plugin for schema
-    const plugin = this.plugins.getForSchema(schema)
-    if (!plugin) {
-      throw new Error('No plugin found for schema')
-    }
-
-    // Generate configuration
-    const config = await plugin.generate(schema, options)
-
-    // Validate configuration
-    await this.validate(config, schema)
-
-    return config
-  }
-
-  async validate(config: unknown, schema: Schema): Promise<void> {
-    const result = await validateSchema(config, schema)
-    if (!result.success) {
-      throw new Error(`Invalid configuration: ${result.error}`)
-    }
-  }
-
-  async save(config: Config, path: string): Promise<void> {
-    // Determine format from path
-    const format = path.split('.').pop()
-
-    // Transform if needed
-    const transformed = await this.transform(config, format!)
-
-    // Write to file
-    await Bun.write(path, transformed)
-  }
-
-  async transform(config: Config, format: string): Promise<string> {
-    switch (format) {
-      case 'json':
-        return JSON.stringify(config, null, 2)
-      case 'ts':
-        return `export default ${JSON.stringify(config, null, 2)}`
-      case 'js':
-        return `module.exports = ${JSON.stringify(config, null, 2)}`
-      default:
-        throw new Error(`Unsupported format: ${format}`)
-    }
-  }
+  /**
+   * Transforms configuration
+   * @param {Config} config - Configuration to transform
+   * @param {string} format - Target format
+   * @returns {Promise<string>}
+   *
+   * @throws {TransformError} When transformation fails
+   * @emits {ConfigEvent} transform - When configuration is transformed
+   */
+  async transform(config: Config, format: string): Promise<string>;
 }

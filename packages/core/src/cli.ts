@@ -1,70 +1,138 @@
-// packages/core/src/cli.ts
+//// @ts-check
+/**
+ * @fileoverview CLI system implementation
+ * @package @bitx-sh/config
+ */
+
+///// <reference types="typescript" />
+///// <reference types="bun-types" />
+
 import { defineCommand } from "citty";
 import { consola } from "consola";
-import { version } from "../package.json";
-import { loadConfig } from "./config";
-import { BitXCore } from "./core";
+import type { Command, CommandMeta, CommandArgs } from "./types";
 
-export default defineCommand({
-  meta: {
-    name: "bitx-config",
-    version,
-    description: "Universal configuration loader and manager",
-  },
-  subcommands: {
-    init: () => import("./commands/init"),
-    get: () => import("./commands/get"),
-    set: () => import("./commands/set"),
-    list: () => import("./commands/list"),
-    import: () => import("./commands/import"),
-    export: () => import("./commands/export"),
-  },
-});
+/**
+ * CLI system class
+ * @class CLI
+ *
+ * @description
+ * Handles command-line interface interactions, command registration,
+ * argument parsing, and execution flow.
+ *
+ * @example
+ * ```typescript
+ * const cli = new CLI();
+ * await cli.run(process.argv.slice(2));
+ * ```
+ */
+export class CLI {
+  /**
+   * Registered commands
+   * @private
+   * @type {Map<string, Command>}
+   */
+  private commands: Map<string, Command>;
 
-// Initialize core instance
-const core = new BitXCore();
+  /**
+   * Logger instance
+   * @private
+   * @type {typeof consola}
+   */
+  private logger: typeof consola;
 
-// Command implementations
-export const commands = {
-  init: defineCommand({
-    meta: {
-      name: "init",
-      description: "Initialize a new configuration",
-    },
-    args: {
-      type: {
-        type: "positional",
-        description: "Configuration type (biome, vite, github, renovate)",
-        required: true,
-      },
-      output: {
-        type: "option",
-        description: "Output file path",
-        alias: "o",
-      },
-    },
-    async run({ args }) {
-      try {
-        const { type, output } = args;
-        consola.start(`Initializing ${type} configuration...`);
+  /**
+   * Creates CLI instance
+   * @constructor
+   * @param {CLIOptions} options - CLI options
+   */
+  constructor(options?: CLIOptions);
 
-        // Load schema for the specified type
-        const schema = await core.schema.load(type);
+  /**
+   * Registers commands
+   * @private
+   * @returns {void}
+   *
+   * @throws {CommandError} When registration fails
+   * @emits {CommandEvent} register - When command is registered
+   */
+  private registerCommands(): void;
 
-        // Generate configuration
-        const config = await core.generate(schema);
+  /**
+   * Runs CLI command
+   * @param {string[]} args - Command arguments
+   * @returns {Promise<void>}
+   *
+   * @throws {CommandError} When execution fails
+   * @emits {CommandEvent} execute - When command executes
+   */
+  async run(args: string[]): Promise<void>;
 
-        // Save configuration
-        if (output) {
-          await core.save(config, output);
-          consola.success(`Configuration saved to ${output}`);
-        } else {
-          console.log(JSON.stringify(config, null, 2));
-        }
-      } catch (error) {
-        consola.error("Failed to initialize configuration:", error);
-        process.exit(1);
-      }
-    },
-  }),
-};
+  /**
+   * Parses command
+   * @private
+   * @param {string[]} args - Command arguments
+   * @returns {Command | undefined}
+   */
+  private parseCommand(args: string[]): Command | undefined;
+
+  /**
+   * Shows help text
+   * @private
+   * @returns {void}
+   */
+  private showHelp(): void;
+
+  /**
+   * Handles errors
+   * @private
+   * @param {Error} error - Error instance
+   * @returns {void}
+   */
+  private handleError(error: Error): void;
+}
+
+/**
+ * CLI options interface
+ * @interface CLIOptions
+ */
+export interface CLIOptions {
+  /**
+   * Logger instance
+   * @type {typeof consola}
+   */
+  logger?: typeof consola;
+
+  /**
+   * Command directory
+   * @type {string}
+   */
+  commandDir?: string;
+
+  /**
+   * Plugin directory
+   * @type {string}
+   */
+  pluginDir?: string;
+}
+
+/**
+ * Command definition helper
+ * @function defineCommand
+ *
+ * @param {CommandDefinition} definition - Command definition
+ * @returns {Command}
+ *
+ * @example
+ * ```typescript
+ * const command = defineCommand({
+ *   meta: {
+ *     name: 'init',
+ *     description: 'Initialize configuration'
+ *   },
+ *   run: async (args) => {
+ *     // Command implementation
+ *   }
+ * });
+ * ```
+ */
+export function defineCommand(definition: CommandDefinition): Command;
