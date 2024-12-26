@@ -1,0 +1,15 @@
+{
+  "name": "@bitx-sh/config",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "bitx-config": "./bin/cli.ts"
+  },
+  "files": [
+    "dist",
+    "bin"
+  ]
+}
