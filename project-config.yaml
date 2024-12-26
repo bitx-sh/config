@@ -1,69 +1,180 @@
-name: "@bitx-sh/config"
-version: 0.0.1
-module: index.ts
-type: module
-private: true
-repository:
-  type: git
-  url: git+https://github.com/bitx-sh/bitx-config.git
-workspaces:
-  - packages/*
-scripts:
-  build: bun run --cwd packages/core build
-  dev: bun run --cwd packages/core dev
-  test: bun test
-  lint: biome check .
-  format: biome format . --write
-  clean: rm -rf **/dist **/node_modules
-  prepare: simple-git-hooks
-devDependencies:
-  "@biomejs/biome": 1.9.4
-  "@types/bun": latest
-  "@types/node": latest
-  changelogen: latest
-  knip: latest
-  lint-staged: latest
-  publint: latest
-peerDependencies:
-  typescript: ^5.7.2
+project:
+  name: bitx-config
+  repository: github.com/bitx-sh/config
+  description: Advanced configuration loader and generator CLI with plugin system
+  version: 0.0.1
+  license: MIT
+
+architecture:
+  type: monorepo
+  packages:
+    core:
+      name: "@bitx-sh/config"
+      type: cli-application
+      responsibilities:
+        - Schema loading and validation
+        - Configuration generation
+        - Plugin management
+        - CLI interface
+        - Interactive prompts
+    plugins:
+      - name: "@bitx-sh/plugin-biome"
+        phase: 1
+        schema: json
+      - name: "@bitx-sh/plugin-vite"
+        phase: 2
+        schema: typescript
+      - name: "@bitx-sh/plugin-github"
+        phase: 3
+        schema: yaml
+      - name: "@bitx-sh/plugin-renovate"
+        phase: 4
+        schema: json
+
 dependencies:
-  c12: latest
-  citty: latest
-  consola: latest
-  knitwork: latest
-  mlly: latest
-  pathe: latest
-  pkg-types: latest
-  quicktype: latest
-  renovate: ^39.82.9
-  scule: latest
-  simple-git-hooks: latest
-  std-env: latest
-  unbuild: latest
-  unconfig: latest
-  unimport: latest
-  zod: latest
-author:
-  name: Daniel Bodnar
-  url: https://github.com/danielbodnar
-engines:
-  bun: ^1.1.40
+  runtime:
+    core:
+      - citty # CLI framework
+      - consola # Logging/prompts
+      - c12 # Config loading
+      - unconfig # Config resolution
+      - zod # Schema validation
+      - quicktype # Schema conversion
+      - mlly # Module loading
+      - knitwork # Code generation
+      - std-env # Environment detection
+      - pkg-types # Package.json handling
+      - pathe # Path handling
+      - scule # String manipulation
+    build:
+      - unbuild # Library building
+      - unimport # Auto-imports
+  development:
+    - "@biomejs/biome" # Linting/formatting
+    - typescript # Type checking
+    - changelogen # Changelog
+    - simple-git-hooks # Git hooks
+    - lint-staged # Pre-commit checks
+    - publint # Package validation
+    - knip # Dependency checking
+
+features:
+  schema:
+    supported_formats:
+      - json-schema
+      - openapi
+      - typescript
+      - zod
+    conversion:
+      internal_format: zod
+      library: quicktype
+
+  plugin_system:
+    sources:
+      - npm_scoped: "@bitx-sh/plugin-*"
+      - npm_global: "bitx-plugin-*"
+      - local: "packages/bitx-plugin-*"
+      - github: "github:*/bitx-plugin-*"
+    lifecycle:
+      - discovery
+      - validation
+      - initialization
+      - execution
+      - cleanup
+
+  configuration:
+    sources:
+      - cli_arguments
+      - environment_variables
+      - configuration_files
+      - remote_sources
+      - user_prompts
+    merge_strategy: c12_defu
+    output_formats:
+      - json
+      - yaml
+      - typescript
+      - javascript
+
 cli:
   commands:
-    - name: init
-      description: Initialize a new configuration file
-      subcommands:
-        - name: project
-          description: Set up project-specific configuration
-        - name: user
-          description: Set up user-specific configuration
-    - name: get
-      description: Retrieve a configuration value
-    - name: set
-      description: Set a configuration value
-    - name: list
-      description: List all configuration values
-    - name: import
-      description: Import configuration from a file
-    - name: export
-      description: Export configuration to a file
+    init:
+      description: Initialize new configuration
+      options:
+        - name: type
+          flag: -t
+          description: Configuration type
+        - name: output
+          flag: -o
+          description: Output file
+    validate:
+      description: Validate existing configuration
+    migrate:
+      description: Migrate between formats
+    docs:
+      description: Generate documentation
+
+roadmap:
+  phase1:
+    name: MVP with Biome
+    features:
+      - Basic CLI structure
+      - Core schema handling
+      - Plugin system foundation
+      - Biome schema support
+      - Interactive prompts
+      - Basic validation
+
+  phase2:
+    name: Complex Schema Support
+    features:
+      - Vite/Bun configuration
+      - Nested schema handling
+      - Advanced validation
+      - Schema references
+      - Multiple source merging
+
+  phase3:
+    name: YAML and Remote Support
+    features:
+      - GitHub Actions support
+      - YAML handling
+      - Remote schema fetching
+      - Improved documentation
+      - Schema caching
+
+  phase4:
+    name: Advanced Features
+    features:
+      - Renovate configuration
+      - Complex validation rules
+      - Migration tools
+      - Schema inference
+      - Performance optimization
+
+development:
+  standards:
+    - TypeScript strict mode
+    - Biome linting rules
+    - Comprehensive testing
+    - Twoslash documentation
+
+  testing:
+    frameworks:
+      - bun test
+    types:
+      - unit
+      - integration
+      - e2e
+      - snapshot
+
+  documentation:
+    tools:
+      - twoslash
+      - undocs
+      - automd
+    formats:
+      - API reference
+      - Usage guides
+      - Plugin development
+      - Schema authoring
