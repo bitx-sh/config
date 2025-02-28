@@ -1,7 +1,7 @@
 //// @ts-check
 /**
  * @fileoverview CLI system implementation
- * @package @bitx-sh/config
+ * @package @bitx/config
  */
 
 ///// <reference types="typescript" />
@@ -360,4 +360,13 @@ export function defineCommand(definition: CommandDefinition): Command {
  */
 export function createCLI(options?: CLIOptions): CLI {
   return new CLI(options);
+}
+
+// Only run if this is the main module (for direct execution)
+if (import.meta.url === Bun?.main || process.argv[1] === import.meta.url) {
+  const cli = createCLI();
+  cli.run(process.argv.slice(2)).catch(error => {
+    console.error('Fatal error:', error);
+    process.exit(1);
+  });
 }

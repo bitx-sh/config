@@ -1,7 +1,7 @@
 //// @ts-check
 /**
  * @fileoverview Core system implementation
- * @package @bitx-sh/config
+ * @package @bitx/config
  */
 
 ///// <reference types="typescript" />
@@ -110,7 +110,7 @@ export class BitXCore {
     
     for (const type of pluginTypes) {
       try {
-        const pluginModule = await import(`@bitx-sh/plugin-${type}`);
+        const pluginModule = await import(`@bitx/plugin-${type}`);
         if (pluginModule?.default) {
           const PluginClass = pluginModule.default;
           const plugin = new PluginClass();

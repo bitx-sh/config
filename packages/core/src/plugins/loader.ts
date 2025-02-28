@@ -1,7 +1,7 @@
 //// @ts-check
 /**
  * @fileoverview Plugin loader implementation
- * @package @bitx-sh/config
+ * @package @bitx/config
  */
 
 ///// <reference types="typescript" />
@@ -20,7 +20,7 @@ import type { Plugin, PluginSource } from "../types";
  * @example
  * ```typescript
  * const loader = new PluginLoader();
- * const plugin = await loader.load('@bitx-sh/plugin-biome');
+ * const plugin = await loader.load('@bitx/plugin-biome');
  * ```
  */
 export class PluginLoader {

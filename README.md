@@ -24,14 +24,26 @@ A universal configuration management system built with Bun, featuring zero-confi
 ## 🚀 Quick Start
 
 ```bash
-# Install globally
-bun install -g @bitx-sh/config
+# Install globally with npm
+npm install -g @bitx/config
+
+# Install globally with bun
+bun install -g @bitx/config
+
+# Install globally with JSR
+jsr install @bitx/config
 
 # Initialize a new configuration
 bitx-config init -t biome -o biome.config.ts
 
-# Or run directly
-bunx @bitx-sh/config init -t biome -o biome.config.ts
+# Or run directly with npm
+npx @bitx/config init -t biome -o biome.config.ts
+
+# Or run directly with bun
+bunx @bitx/config init -t biome -o biome.config.ts
+
+# Or run directly with JSR
+jsr x @bitx/config init -t biome -o biome.config.ts
 ```
 
 ## ✨ Features
@@ -343,10 +355,10 @@ export class BitXCore implements BitXSystem {
 
   private async initializeCorePlugins() {
     await Promise.all([
-      this.plugins.load('@bitx-sh/plugin-biome'),
-      this.plugins.load('@bitx-sh/plugin-vite'),
-      this.plugins.load('@bitx-sh/plugin-github'),
-      this.plugins.load('@bitx-sh/plugin-renovate')
+      this.plugins.load('@bitx/plugin-biome'),
+      this.plugins.load('@bitx/plugin-vite'),
+      this.plugins.load('@bitx/plugin-github'),
+      this.plugins.load('@bitx/plugin-renovate')
     ])
   }
 
@@ -516,7 +528,7 @@ export class UISystem implements IUISystem {
 ```typescript
 // Example Biome Plugin Implementation
 export default definePlugin({
-  name: '@bitx-sh/plugin-biome',
+  name: '@bitx/plugin-biome',
   version: '0.0.1',
 
   schema: {
@@ -553,7 +565,7 @@ export default definePlugin({
 
 // Example Vite Plugin Implementation
 export default definePlugin({
-  name: '@bitx-sh/plugin-vite',
+  name: '@bitx/plugin-vite',
   version: '0.0.1',
 
   schema: {
