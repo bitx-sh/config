@@ -1,5 +1,5 @@
 {
-  "name": "@bitx-sh/plugin-renovate",
+  "name": "@bitx/plugin-renovate",
   "version": "0.0.1",
   "type": "module",
   "main": "dist/index.js",

@@ -1,0 +1,15 @@
+{
+  "name": "@bitx/config",
+  "version": "0.0.1",
+  "exports": "./packages/core/index.ts",
+  "bin": {
+    "bitx-config": "./packages/core/bin/cli.js",
+    "@bitx/config": "./packages/core/bin/bitx-config.js"
+  },
+  "publish": {
+    "include": ["packages/core/dist", "packages/core/bin"],
+    "strategy": {
+      "jspm": true
+    }
+  }
+}

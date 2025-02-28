@@ -1,15 +1,33 @@
 {
-  "name": "@bitx-sh/config",
+  "name": "@bitx/config",
   "version": "0.0.1",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "bin": {
-    "bitx-config": "./bin/cli.ts"
+    "bitx-config": "./bin/cli.js",
+    "@bitx/config": "./bin/bitx-config.js"
   },
   "files": [
     "dist",
     "bin"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/",
+    "provenance": true
+  },
+  "jspm": {
+    "directories": {
+      "lib": "dist"
+    },
+    "main": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc && bun build ./src/cli.ts --outfile ./dist/cli.js --target node",
+    "build:binary": "bun build ./src/cli.ts --compile --outfile bitx-config",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  }
 }
