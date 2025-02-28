@@ -122,6 +122,42 @@ export interface SchemaSystem {
    * @emits {ValidationEvent} validate - When validation completes
    */
   validate(data: unknown, schemaName: string): Promise<boolean>;
+  
+  /**
+   * Schema items property for array schemas
+   * @type {Schema | Schema[]}
+   */
+  items?: Schema | Schema[];
+  
+  /**
+   * Schema minimum length for string schemas
+   * @type {number}
+   */
+  minLength?: number;
+  
+  /**
+   * Schema maximum length for string schemas
+   * @type {number}
+   */
+  maxLength?: number;
+  
+  /**
+   * Schema pattern for string schemas
+   * @type {string}
+   */
+  pattern?: string;
+  
+  /**
+   * Schema minimum value for number schemas
+   * @type {number}
+   */
+  minimum?: number;
+  
+  /**
+   * Schema maximum value for number schemas
+   * @type {number}
+   */
+  maximum?: number;
 }
 
 /**

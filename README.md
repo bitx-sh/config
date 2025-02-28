@@ -1,4 +1,4 @@
-# 🌟 bitx-config: a zero-config, pluggable, universal config loader, generator, and transformer cli / tui ⚡️
+# 🌟 bitx-config: a zero-config, pluggable, universal config loader, generator, and transformer CLI ⚡️
 
 [![Bun](https://img.shields.io/badge/Bun-%23000000.svg?style=for-the-badge&logo=bun&logoColor=white)](https://bun.sh)
 [![TypeScript](https://img.shields.io/badge/TypeScript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)

@@ -60,7 +60,11 @@ export abstract class BasePlugin implements Plugin {
    * @throws {PluginError} When setup fails
    * @emits {PluginEvent} setup - When plugin is set up
    */
-  async setup(context: PluginContext): Promise<void>;
+  async setup(context: PluginContext): Promise<void> {
+    this.context = context;
+    await this.initialize();
+    return Promise.resolve();
+  }
 
   /**
    * Initializes plugin
